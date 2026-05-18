@@ -35,18 +35,28 @@ Included skills:
 
 ## Setup
 
-Create and activate a virtual environment:
+Install `uv` first if you do not already have it:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+brew install uv
 ```
 
-Install dependencies:
+Then run the macOS installer:
 
 ```bash
-pip install python-dotenv python-telegram-bot httpx openai playwright
-playwright install chromium
+./scripts/install_macos.sh
+```
+
+On Windows, install `uv`:
+
+```powershell
+winget install --id=astral-sh.uv -e
+```
+
+Then run the Windows installer from PowerShell:
+
+```powershell
+.\scripts\install_windows.ps1
 ```
 
 Create your local environment file:
@@ -101,7 +111,7 @@ If LM Studio exposes a specific model id, use that value for `MODEL_NAME`.
 Start the Telegram assistant:
 
 ```bash
-python main.py
+uv run python main.py
 ```
 
 You should see startup output in the terminal. Then send a message to your Telegram bot.
@@ -128,5 +138,5 @@ These files are ignored by git because they may contain private user data.
 Run a syntax check:
 
 ```bash
-python -m py_compile main.py agent_runtime.py model_providers.py skill_loader.py
+uv run python -m py_compile main.py agent_runtime.py model_providers.py skill_loader.py
 ```
