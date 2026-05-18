@@ -1,0 +1,18 @@
+[project]
+name = "tiny-openclaw"
+version = "0.1.0"
+description = "A local Telegram AI assistant with pluggable model providers and skill-based tools."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.0",
+    "openai>=1.0.0",
+    "playwright>=1.55.0",
+    "python-dotenv>=1.0.0",
+    "python-telegram-bot>=22.0",
+    "sampytools",
+    "sqlalchemy>=2.0.49",
+]
+
+[tool.uv.sources]
+sampytools = { path = "pywheels/sampytools-1.0.0-py3-none-any.whl" }
