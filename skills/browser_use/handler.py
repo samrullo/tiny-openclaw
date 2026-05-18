@@ -18,7 +18,7 @@ async def _get_page():
     _browser = await pw.chromium.launch(headless=True)
 
     # open a new page in the launched browser
-    _page = _browser.new_page()
+    _page = await _browser.new_page()
 
     return _page
 
@@ -84,7 +84,7 @@ tools = [
 async def execute(tool_name, tool_input, context):
     try:
         # create browser page
-        page = _get_page()
+        page = await _get_page()
 
         if tool_name=="browse_url":
             url = tool_input["url"]
@@ -114,8 +114,9 @@ async def execute(tool_name, tool_input, context):
             return {"filled":tool_input["selector"],"text":tool_input["text"]}
         elif tool_name=="get_page_content":
             selector = tool_input["selector"] or "body"
-            text = page.inner_text(selector)
+            text = await page.inner_text(selector)
             return {"url":page.url,"content":text.strip()[:5000]}
         return {"error":f"Unknown tool {tool_name}"}
     except Exception as e:
-        print("Error while executing browser related skills : {e}")
+        print(f"Error while executing browser related skills : {e}")
+        return {"error": str(e)}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Tiny OpenClaw lobster bot icon">
+  <rect width="512" height="512" rx="112" fill="#053b46"/>
+  <circle cx="256" cy="256" r="204" fill="#0b7285"/>
+  <circle cx="256" cy="256" r="176" fill="#e8fbff"/>
+  <text
+    x="256"
+    y="286"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif"
+    font-size="245">🦞</text>
+</svg>

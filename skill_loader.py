@@ -1,5 +1,11 @@
 import os
 import importlib.util
+import logging
+
+from logging_utils import compact_json
+
+
+logger = logging.getLogger(__name__)
 
 
 class SkillLoader:
@@ -8,7 +14,7 @@ class SkillLoader:
 
     def load_from_directory(self, skills_dir):
         if not os.path.isdir(skills_dir):
-            print(f"No skill directory {skills_dir} found")
+            logger.warning("No skill directory found: %s", skills_dir)
             return
 
         for entry in os.listdir(skills_dir):
@@ -46,9 +52,14 @@ class SkillLoader:
                     "execute": getattr(module, "execute", None),
                 }
 
-                print(f"Skill loaded : {name}")
+                tool_names = [tool["name"] for tool in self.skills[name]["tools"]]
+                logger.info(
+                    "Loaded skill '%s' with tools: %s",
+                    name,
+                    ", ".join(tool_names) or "none",
+                )
             except Exception as e:
-                print(f"Error while loading a skill {entry} : {e}")
+                logger.exception("Error while loading skill '%s': %s", entry, e)
 
     # helper function to get skill names and descriptions for the system prompt
     def get_active_skills(self):
@@ -66,10 +77,21 @@ class SkillLoader:
     
     # find which skill owns this tool and run it
     async def execute_tool(self, tool_name, tool_input, context):
+        logger.info("Executing tool '%s' with input: %s", tool_name, compact_json(tool_input))
         for skill in self.skills.values():
             if any(t["name"]==tool_name for t in skill["tools"]):
                 if skill["execute"]:
-                    return await skill["execute"](tool_name,tool_input,context)
+                    result = await skill["execute"](tool_name,tool_input,context)
+                    logger.info(
+                        "Tool '%s' completed with result: %s",
+                        tool_name,
+                        compact_json(result),
+                    )
+                    return result
+                logger.warning("Tool '%s' belongs to skill '%s' but has no execute handler", tool_name, skill["name"])
+                return {"error":f"Tool {tool_name} has no execute handler"}
+
+        logger.warning("Unknown tool requested by model: %s", tool_name)
         return {"error":f"Unknown tool {tool_name}"}
     
     # extract name and description from SKILL.md
