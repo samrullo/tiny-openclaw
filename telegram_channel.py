@@ -89,9 +89,37 @@ class TelegramChannel:
             async def on_tool_use(name, input):
                 logger.info("Telegram session '%s' is using tool '%s'", session_id, name)
                 await update.effective_chat.send_action("typing")
+
+            # Log a clear per-turn summary after the agent finishes
+            async def on_tool_summary(tool_names):
+                if tool_names:
+                    tools_used = ", ".join(tool_names)
+                    logger.info(
+                        "Telegram session '%s' tool summary: called tools: %s",
+                        session_id,
+                        tools_used,
+                    )
+                else:
+                    tools_used = "none"
+                    logger.info(
+                        "Telegram session '%s' tool summary: no tools called",
+                        session_id,
+                    )
+
+                await update.message.reply_text(
+                    f"Tool usage : {len(tool_names)}, Tools used : {tools_used}"
+                )
             
             # run the ReAct loop
-            await self.agent.run(history, session_id, {"on_token":on_token,"on_tool_use":on_tool_use})
+            await self.agent.run(
+                history,
+                session_id,
+                {
+                    "on_token": on_token,
+                    "on_tool_use": on_tool_use,
+                    "on_tool_summary": on_tool_summary,
+                },
+            )
 
             # Send reply back to Telegram (split over 4096 chars due to Telegram's limit)
             if full_response:

@@ -22,6 +22,9 @@ class AgentRuntime:
         # callback to modify the user when a tool is being used (defined in ./telegram_channel.py)
         on_tool_use = callbacks.get("on_tool_use")
 
+        # callback to report a final per-turn tool summary
+        on_tool_summary = callbacks.get("on_tool_summary")
+
         # build system prompt
         system_prompt = build_system_prompt(
             self.skills.get_active_skills(), self.memory
@@ -41,6 +44,7 @@ class AgentRuntime:
 
         response = ""
         rounds = 0
+        called_tools = []
 
         # ReAct loop that keeps going until LLM returns an answer or hits the limit
         while rounds < MAX_TOOL_ROUNDS:
@@ -67,6 +71,7 @@ class AgentRuntime:
 
                 # run each tool and feed results back
                 for tool_call in result.tool_calls:
+                    called_tools.append(tool_call["name"])
                     logger.info(
                         "Model requested tool '%s' with input: %s",
                         tool_call["name"],
@@ -103,6 +108,21 @@ class AgentRuntime:
                 session_id,
                 MAX_TOOL_ROUNDS,
             )
+
+        if called_tools:
+            logger.info(
+                "Tool usage summary for session '%s': called tools: %s",
+                session_id,
+                ", ".join(called_tools),
+            )
+        else:
+            logger.info(
+                "Tool usage summary for session '%s': no tools called",
+                session_id,
+            )
+
+        if on_tool_summary:
+            await on_tool_summary(called_tools)
 
         logger.info(
             "Finished agent run for session '%s' with response_chars=%s",
