@@ -118,6 +118,16 @@ You should see startup output in the terminal. Then send a message to your Teleg
 
 The app logs each Telegram turn, the configured model, loaded skills, tools offered to the model, tool calls requested by the model, and each tool execution result. This is the easiest way to confirm whether the local model is actually calling tools from the `skills/` directory.
 
+To clear your Telegram chat session history, send one of these commands to the bot:
+
+```text
+/reset
+/reset_session
+/wipe_session
+```
+
+This clears the current chat's `SESSIONS.json` history. It does not clear saved long-term memory from `MEMORY.json`.
+
 ## Local State
 
 The app writes local runtime state:

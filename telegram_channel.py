@@ -2,7 +2,7 @@ import logging
 import time
 import asyncio
 from telegram import Update
-from telegram.ext import Application, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 # Translates between Telegram BOT API and Tiny OpenClaw
 logger = logging.getLogger(__name__)
@@ -18,8 +18,11 @@ class TelegramChannel:
         # build the Telegram bot app using bot token
         app = Application.builder().token(self.token).build()
 
+        # listen for session reset commands before routing normal text to the LLM
+        app.add_handler(CommandHandler(["reset", "reset_session", "wipe_session"], self._reset_session))
+
         # listen for messages and route them to _on_message
-        app.add_handler(MessageHandler(filters.TEXT, self._on_message))
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_message))
 
         # initialize the bot and start checking new messages
         await app.initialize()
@@ -29,6 +32,21 @@ class TelegramChannel:
 
         # keep the bot running forever
         await asyncio.Future()
+
+    # called when a user asks to clear their Telegram session history
+    async def _reset_session(self, update: Update, context):
+        chat_id = str(update.effective_chat.id)
+        session_id = self.sessions.get_or_create_session(chat_id, "telegram")
+
+        cleared = self.sessions.clear_history(session_id)
+        if cleared:
+            logger.info("Cleared Telegram session history for session '%s'", session_id)
+            await update.message.reply_text(
+                "Session reset. I will not include the previous chat history in future replies."
+            )
+        else:
+            logger.warning("Could not clear missing Telegram session '%s'", session_id)
+            await update.message.reply_text("No existing session history was found.")
     
     # called every time a user sends a message to the bot
     async def _on_message(self, update:Update, context):

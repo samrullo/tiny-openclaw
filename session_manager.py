@@ -42,6 +42,17 @@ class SessionManager:
         session = self.sessions.get(session_id)
         return session["history"] if session else []
 
+    # Clear conversation history for a session while preserving session metadata
+    def clear_history(self, session_id):
+        session = self.sessions.get(session_id)
+        if not session:
+            return False
+
+        session["history"] = []
+        session["cleared_at"] = time.time()
+        self._save()
+        return True
+
     # Save sessions to disk
     def _save(self):
         with open(self.path, "w") as f:
