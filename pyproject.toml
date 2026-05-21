@@ -14,5 +14,25 @@ dependencies = [
     "sqlalchemy>=2.0.49",
 ]
 
+[project.scripts]
+tinyopenclaw = "main:cli"
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = [
+    "agent_runtime",
+    "context_builder",
+    "logging_utils",
+    "main",
+    "memory_store",
+    "model_providers",
+    "session_manager",
+    "skill_loader",
+    "telegram_channel",
+]
+
 [tool.uv.sources]
 sampytools = { path = "pywheels/sampytools-1.0.0-py3-none-any.whl" }

@@ -128,6 +128,16 @@ To clear your Telegram chat session history, send one of these commands to the b
 
 This clears the current chat's `SESSIONS.json` history. It does not clear saved long-term memory from `MEMORY.json`.
 
+Tool usage summaries are sent to Telegram after each model interaction by default. Use these commands to control them per chat:
+
+```text
+/tool_usage_on
+/tool_usage_off
+/tool_usage_status
+```
+
+When enabled, the bot reports the number of tools called, the tool names, and the parameters used for each tool call.
+
 ## Local State
 
 The app writes local runtime state:

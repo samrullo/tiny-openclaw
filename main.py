@@ -54,5 +54,8 @@ async def main():
     # start the telegram bot
     await telegram.start()
 
-if __name__ == "__main__":
+def cli():
     asyncio.run(main())
+
+if __name__ == "__main__":
+    cli()

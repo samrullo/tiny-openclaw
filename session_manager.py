@@ -53,6 +53,23 @@ class SessionManager:
         self._save()
         return True
 
+    # Store per-session settings such as Telegram debug preferences
+    def set_setting(self, session_id, key, value):
+        session = self.sessions.get(session_id)
+        if not session:
+            return False
+
+        session.setdefault("settings", {})[key] = value
+        self._save()
+        return True
+
+    def get_setting(self, session_id, key, default=None):
+        session = self.sessions.get(session_id)
+        if not session:
+            return default
+
+        return session.get("settings", {}).get(key, default)
+
     # Save sessions to disk
     def _save(self):
         with open(self.path, "w") as f:

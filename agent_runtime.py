@@ -44,7 +44,7 @@ class AgentRuntime:
 
         response = ""
         rounds = 0
-        called_tools = []
+        tool_calls = []
 
         # ReAct loop that keeps going until LLM returns an answer or hits the limit
         while rounds < MAX_TOOL_ROUNDS:
@@ -71,7 +71,9 @@ class AgentRuntime:
 
                 # run each tool and feed results back
                 for tool_call in result.tool_calls:
-                    called_tools.append(tool_call["name"])
+                    tool_calls.append(
+                        {"name": tool_call["name"], "input": tool_call["input"]}
+                    )
                     logger.info(
                         "Model requested tool '%s' with input: %s",
                         tool_call["name"],
@@ -109,6 +111,7 @@ class AgentRuntime:
                 MAX_TOOL_ROUNDS,
             )
 
+        called_tools = [tool_call["name"] for tool_call in tool_calls]
         if called_tools:
             logger.info(
                 "Tool usage summary for session '%s': called tools: %s",
@@ -122,7 +125,7 @@ class AgentRuntime:
             )
 
         if on_tool_summary:
-            await on_tool_summary(called_tools)
+            await on_tool_summary(tool_calls)
 
         logger.info(
             "Finished agent run for session '%s' with response_chars=%s",
